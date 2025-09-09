@@ -1,27 +1,32 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { UserProfile } from '@/components/auth/user-profile';
-import { AuthUser } from '@/types';
+import { useAuth } from '@/contexts/auth-context';
 import { PlusCircle, BarChart3, Vote, Home } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-interface HeaderProps {
-  user: AuthUser | null;
-  onLogin: () => void;
-  onLogout: () => void;
-}
-
-export function Header({ user, onLogin, onLogout }: HeaderProps) {
+export function Header() {
   const pathname = usePathname();
+  const router = useRouter();
+  const { user, signOut } = useAuth();
+
+  const handleLogin = () => {
+    router.push('/auth/login');
+  };
+
+  const handleLogout = async () => {
+    await signOut();
+    router.push('/');
+  };
 
   const navItems = [
     { href: '/', label: 'Home', icon: Home },
     { href: '/polls', label: 'All Polls', icon: Vote },
-    { href: '/dashboard', label: 'Dashboard', icon: BarChart3 },
-    { href: '/polls/create', label: 'Create Poll', icon: PlusCircle },
+    { href: '/dashboard', label: 'Dashboard', icon: BarChart3, requireAuth: true },
+    { href: '/polls/create', label: 'Create Poll', icon: PlusCircle, requireAuth: true },
   ];
 
   return (
@@ -35,6 +40,9 @@ export function Header({ user, onLogin, onLogout }: HeaderProps) {
             
             <nav className="hidden md:flex items-center space-x-6">
               {navItems.map((item) => {
+                // Skip auth-required items if user is not logged in
+                if (item.requireAuth && !user) return null;
+                
                 const Icon = item.icon;
                 const isActive = pathname === item.href;
                 
@@ -59,9 +67,17 @@ export function Header({ user, onLogin, onLogout }: HeaderProps) {
           
           <div className="flex items-center space-x-4">
             {user ? (
-              <UserProfile user={user} onLogout={onLogout} />
+              <UserProfile 
+                user={{
+                  id: user.id,
+                  email: user.email,
+                  name: user.name,
+                  avatar: user.avatar,
+                }} 
+                onLogout={handleLogout} 
+              />
             ) : (
-              <Button onClick={onLogin}>Sign In</Button>
+              <Button onClick={handleLogin}>Sign In</Button>
             )}
           </div>
         </div>
