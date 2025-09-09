@@ -1,36 +1,77 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Polly - Next.js Polling Application
 
-## Getting Started
+A modern, responsive polling application built with Next.js, TypeScript, and Shadcn UI components.
 
-First, run the development server:
+## 🚀 Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+### ✅ Implemented (Scaffolded)
+- **User Authentication**
+  - Login and registration forms
+  - User profile management
+  - Mock authentication system
+- **Poll Management**
+  - Create polls with multiple options
+  - View all polls
+  - Poll details with real-time results
+  - Vote on polls
+- **Dashboard**
+  - User statistics
+  - Manage personal polls
+  - Analytics overview
+- **Responsive UI**
+  - Modern design with Shadcn UI
+  - Mobile-friendly interface
+  - Dark/light theme support
+
+### 🔄 Ready for Implementation
+- Real authentication (NextAuth.js, Auth0, etc.)
+- Database integration (PostgreSQL, MongoDB, etc.)
+- Real-time voting with WebSockets
+- Poll sharing and embedding
+- Advanced analytics
+- Email notifications
+- Poll expiration handling
+
+## 📁 Project Structure
+
 ```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+alx-polly/
+├── app/                          # Next.js App Router
+│   ├── layout.tsx               # Root layout with AuthProvider
+│   ├── page.tsx                 # Homepage with landing page
+│   ├── auth/                    # Authentication pages (placeholder)
+│   ├── polls/
+│   │   ├── page.tsx            # All polls listing
+│   │   ├── create/
+│   │   │   └── page.tsx        # Create new poll
+│   │   └── [id]/
+│   │       └── page.tsx        # Individual poll details
+│   └── dashboard/
+│       └── page.tsx            # User dashboard
+├── components/
+│   ├── auth/                    # Authentication components
+│   │   ├── login-form.tsx      # Login form with validation
+│   │   ├── register-form.tsx   # Registration form
+│   │   └── user-profile.tsx    # User profile dropdown
+│   ├── layout/                  # Layout components
+│   │   ├── header.tsx          # Navigation header
+│   │   └── footer.tsx          # Site footer
+│   ├── polls/                   # Poll-related components
+│   │   ├── create-poll-form.tsx # Create poll form
+│   │   ├── poll-card.tsx       # Poll display card
+│   │   ├── poll-details.tsx    # Detailed poll view
+│   │   └── poll-list.tsx       # List of polls
+│   └── ui/                      # Shadcn UI components
+│       ├── button.tsx
+│       ├── card.tsx
+│       ├── input.tsx
+│       └── ... (other UI components)
+├── hooks/                       # Custom React hooks
+│   ├── use-auth.tsx            # Authentication context & hook
+│   └── use-polls.tsx           # Poll management hook
+├── lib/
+│   └── utils.ts                # Utility functions (cn, etc.)
+├── types/
+│   └── index.ts                # TypeScript type definitions
+└── public/                     # Static assets
+```
