@@ -3,27 +3,23 @@
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { PollDetails } from '@/components/polls/poll-details';
-import { useAuth } from '@/hooks/use-auth';
+import { useAuth } from '@/contexts/auth-context';
 import { usePolls } from '@/hooks/use-polls';
 import { useParams, useRouter } from 'next/navigation';
 
 export default function PollDetailsPage() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const { polls } = usePolls();
   const params = useParams();
   const router = useRouter();
   const pollId = params.id as string;
-
-  const handleLogin = () => {
-    router.push('/');
-  };
 
   const poll = polls.find(p => p.id === pollId);
 
   if (!poll) {
     return (
       <div className="min-h-screen flex flex-col">
-        <Header user={user} onLogin={handleLogin} onLogout={logout} />
+        <Header />
         <main className="flex-1 container mx-auto px-4 py-8 flex items-center justify-center">
           <div className="text-center">
             <h1 className="text-2xl font-bold mb-4">Poll Not Found</h1>
@@ -69,7 +65,7 @@ export default function PollDetailsPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header user={user} onLogin={handleLogin} onLogout={logout} />
+      <Header />
       
       <main className="flex-1 container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">

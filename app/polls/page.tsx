@@ -5,20 +5,15 @@ import { Footer } from '@/components/layout/footer';
 import { PollList } from '@/components/polls/poll-list';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useAuth } from '@/hooks/use-auth';
+import { useAuth } from '@/contexts/auth-context';
 import { usePolls } from '@/hooks/use-polls';
 import { Search, Filter } from 'lucide-react';
 import { useState } from 'react';
 
 export default function PollsPage() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const { polls, vote } = usePolls();
   const [searchTerm, setSearchTerm] = useState('');
-
-  const handleLogin = () => {
-    // Redirect to home page for login
-    window.location.href = '/';
-  };
 
   const filteredPolls = polls.filter(poll => 
     poll.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -27,7 +22,7 @@ export default function PollsPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header user={user} onLogin={handleLogin} onLogout={logout} />
+      <Header />
       
       <main className="flex-1 container mx-auto px-4 py-8">
         <div className="space-y-6">

@@ -18,6 +18,8 @@ interface SupabaseClient {
 }
 
 // Mock implementation that mimics Supabase behavior
+let authCallbacks: ((event: string, session: any) => void)[] = [];
+
 export const supabase: SupabaseClient = {
   auth: {
     getSession: async () => {
@@ -36,11 +38,18 @@ export const supabase: SupabaseClient = {
         user_metadata: options?.data || {}
       };
       
-      // Store in localStorage for demo purposes
-      localStorage?.setItem('supabase-session', JSON.stringify({
+      const session = {
         user: mockUser,
         access_token: 'mock-token-' + Date.now()
-      }));
+      };
+      
+      // Store in localStorage for demo purposes
+      localStorage?.setItem('supabase-session', JSON.stringify(session));
+      
+      // Trigger auth state change
+      setTimeout(() => {
+        authCallbacks.forEach(callback => callback('SIGNED_IN', session));
+      }, 100);
 
       return {
         data: { user: mockUser },
@@ -63,6 +72,11 @@ export const supabase: SupabaseClient = {
       };
 
       localStorage?.setItem('supabase-session', JSON.stringify(session));
+      
+      // Trigger auth state change
+      setTimeout(() => {
+        authCallbacks.forEach(callback => callback('SIGNED_IN', session));
+      }, 100);
 
       return {
         data: { user: mockUser, session },
@@ -72,19 +86,32 @@ export const supabase: SupabaseClient = {
 
     signOut: async () => {
       localStorage?.removeItem('supabase-session');
+      
+      // Trigger auth state change for signout
+      setTimeout(() => {
+        authCallbacks.forEach(callback => callback('SIGNED_OUT', null));
+      }, 100);
+      
       return { error: null };
     },
 
     onAuthStateChange: (callback) => {
-      // Simple implementation - call callback with current session
+      // Add callback to our list
+      authCallbacks.push(callback);
+      
+      // Call immediately with current session
       const sessionData = localStorage?.getItem('supabase-session');
       const session = sessionData ? JSON.parse(sessionData) : null;
-      setTimeout(() => callback('SIGNED_IN', session), 100);
+      setTimeout(() => callback(session ? 'SIGNED_IN' : 'SIGNED_OUT', session), 100);
       
       return {
         data: {
           subscription: {
-            unsubscribe: () => console.log('Unsubscribed from auth changes')
+            unsubscribe: () => {
+              // Remove callback from list
+              authCallbacks = authCallbacks.filter(cb => cb !== callback);
+              console.log('Unsubscribed from auth changes');
+            }
           }
         }
       };

@@ -3,68 +3,44 @@
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { ProtectedRoute } from '@/components/auth/protected-route';
+import { PollList } from '@/components/polls/poll-list';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/auth-context';
+import { usePolls } from '@/hooks/use-polls';
 import { useRouter } from 'next/navigation';
 import { BarChart3, Vote, Users, Plus, TrendingUp } from 'lucide-react';
 
 export default function DashboardPage() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const { polls, vote } = usePolls();
   const router = useRouter();
 
-  const handleLogin = () => {
-    router.push('/');
-  };
-
-  if (!user) {
-    return (
-      <div className="min-h-screen flex flex-col">
-        <Header user={user} onLogin={handleLogin} onLogout={logout} />
-        <main className="flex-1 container mx-auto px-4 py-8 flex items-center justify-center">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold mb-4">Authentication Required</h1>
-            <p className="text-muted-foreground mb-6">
-              You need to be signed in to view your dashboard.
-            </p>
-            <button 
-              onClick={handleLogin}
-              className="text-primary hover:underline"
-            >
-              Sign in to continue
-            </button>
-          </div>
-        </main>
-        <Footer />
-      </div>
-    );
-  }
-
   // Mock data - in a real app, this would be filtered by user
-  const myPolls = polls.filter(poll => poll.createdBy === user.id);
+  const myPolls = polls.filter(poll => poll.createdBy === user?.id);
   const totalVotes = myPolls.reduce((sum, poll) => sum + poll.totalVotes, 0);
   const activePolls = myPolls.filter(poll => poll.isActive).length;
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header user={user} onLogin={handleLogin} onLogout={logout} />
-      
-      <main className="flex-1 container mx-auto px-4 py-8">
-        <div className="space-y-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold">Dashboard</h1>
-              <p className="text-muted-foreground">
-                Manage your polls and track performance
-              </p>
+    <ProtectedRoute>
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        
+        <main className="flex-1 container mx-auto px-4 py-8">
+          <div className="space-y-8">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-3xl font-bold">Dashboard</h1>
+                <p className="text-muted-foreground">
+                  Manage your polls and track performance
+                </p>
+              </div>
+              <Button onClick={() => router.push('/polls/create')}>
+                <Plus className="h-4 w-4 mr-2" />
+                Create Poll
+              </Button>
             </div>
-            <Button onClick={() => router.push('/polls/create')}>
-              <Plus className="h-4 w-4 mr-2" />
-              Create Poll
-            </Button>
-          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <Card>
@@ -154,9 +130,10 @@ export default function DashboardPage() {
             />
           </div>
         </div>
-      </main>
+        </main>
 
-      <Footer />
-    </div>
+        <Footer />
+      </div>
+    </ProtectedRoute>
   );
 }

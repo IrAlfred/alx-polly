@@ -18,8 +18,15 @@ export function Header() {
   };
 
   const handleLogout = async () => {
-    await signOut();
-    router.push('/');
+    console.log('Logout button clicked');
+    try {
+      await signOut();
+      console.log('SignOut completed');
+      // Force hard navigation to home to avoid any caching issues
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
   };
 
   const navItems = [

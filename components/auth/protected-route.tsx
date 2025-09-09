@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/auth-context';
 
@@ -17,18 +17,23 @@ export function ProtectedRoute({
 }: ProtectedRouteProps) {
   const { user, loading } = useAuth();
   const router = useRouter();
+  const [redirecting, setRedirecting] = useState(false);
 
   useEffect(() => {
     if (!loading) {
       if (requireAuth && !user) {
+        console.log('ProtectedRoute: User not authenticated, redirecting to', redirectTo);
+        setRedirecting(true);
         router.push(redirectTo);
       } else if (!requireAuth && user) {
+        console.log('ProtectedRoute: User authenticated but on public route, redirecting to dashboard');
+        setRedirecting(true);
         router.push('/dashboard');
       }
     }
   }, [user, loading, router, redirectTo, requireAuth]);
 
-  if (loading) {
+  if (loading || redirecting) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
@@ -37,11 +42,23 @@ export function ProtectedRoute({
   }
 
   if (requireAuth && !user) {
-    return null;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <p>Redirecting to login...</p>
+        </div>
+      </div>
+    );
   }
 
   if (!requireAuth && user) {
-    return null;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <p>Redirecting to dashboard...</p>
+        </div>
+      </div>
+    );
   }
 
   return <>{children}</>;

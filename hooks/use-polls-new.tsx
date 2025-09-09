@@ -32,13 +32,6 @@ export function usePolls() {
       
       const data = await pollService.getAllPolls();
       
-      // Handle empty results gracefully
-      if (!data) {
-        console.log('No poll data returned from database');
-        setPolls([]);
-        return;
-      }
-
       // Transform data to match our component expectations
       const transformedPolls: Poll[] = data.map(poll => ({
         id: poll.id,
@@ -50,27 +43,20 @@ export function usePolls() {
         is_active: poll.is_active,
         allow_multiple_choices: poll.allow_multiple_choices,
         total_votes: poll.total_votes,
-        options: poll.poll_options?.map(option => ({
+        options: poll.poll_options.map(option => ({
           id: option.id,
           poll_id: option.poll_id,
           text: option.text,
           votes: option.votes,
           created_at: option.created_at
-        })) || [],
+        })),
         created_by_profile: poll.profiles
       }));
 
-      console.log(`Loaded ${transformedPolls.length} polls successfully`);
       setPolls(transformedPolls);
     } catch (err: any) {
-      console.error('Error loading polls:', {
-        message: err?.message,
-        details: err?.details,
-        hint: err?.hint,
-        code: err?.code,
-        fullError: err
-      });
-      setError(err?.message || 'Failed to load polls');
+      console.error('Error loading polls:', err);
+      setError(err.message || 'Failed to load polls');
     } finally {
       setIsLoading(false);
     }

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase-mock';
+import { supabase } from '@/lib/supabase';
 
 interface AuthUser {
   id: string;
@@ -39,13 +39,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   const transformUser = (supabaseUser: any): AuthUser | null => {
-    if (!supabaseUser) return null;
-    return {
+    if (!supabaseUser) {
+      console.log('transformUser: No user data');
+      return null;
+    }
+    const transformed = {
       id: supabaseUser.id,
       email: supabaseUser.email,
       name: supabaseUser.user_metadata?.name || supabaseUser.email,
       avatar: supabaseUser.user_metadata?.avatar_url,
     };
+    console.log('transformUser: Transformed user:', transformed);
+    return transformed;
   };
 
   useEffect(() => {
@@ -59,7 +64,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event: any, session: any) => {
+    } = supabase.auth.onAuthStateChange((event: any, session: any) => {
+      console.log('Auth state change:', event, session);
       setSession(session);
       setUser(transformUser(session?.user));
       setLoading(false);
@@ -115,8 +121,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const signOut = async () => {
     try {
+      console.log('AuthContext: Starting signOut');
       setLoading(true);
+      
+      // First clear the state locally
+      setUser(null);
+      setSession(null);
+      
+      // Then call the mock supabase signOut (which will trigger auth state change)
       await supabase.auth.signOut();
+      
+      console.log('AuthContext: SignOut completed, user should be null');
     } catch (error) {
       console.error('Error signing out:', error);
     } finally {
