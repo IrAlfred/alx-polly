@@ -139,14 +139,14 @@ export function CreatePollForm({ onSubmit, isLoading = false }: CreatePollFormPr
 
   return (
     <Card className="w-full max-w-2xl mx-auto">
-      <CardHeader>
-        <CardTitle>Create New Poll</CardTitle>
-        <CardDescription>
+      <CardHeader className="px-4 sm:px-6">
+        <CardTitle className="text-xl sm:text-2xl">Create New Poll</CardTitle>
+        <CardDescription className="text-sm sm:text-base">
           Create a poll to gather opinions and make decisions
         </CardDescription>
       </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-6">
+      <CardContent className="px-4 sm:px-6">
+        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
           <div className="space-y-2">
             <Label htmlFor="title">Poll Title *</Label>
             <Input
@@ -172,27 +172,32 @@ export function CreatePollForm({ onSubmit, isLoading = false }: CreatePollFormPr
                 rows={3}
               />
             </div>          <div className="space-y-4">
-            <Label>Poll Options *</Label>
-            {formData.options.map((option, index) => (
-              <div key={index} className="flex items-center space-x-2">
-                <Input
-                  value={option}
-                  onChange={(e) => updateOption(index, e.target.value)}
-                  placeholder={`Option ${index + 1}`}
-                  required
-                />
-                {formData.options.length > 2 && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    onClick={() => removeOption(index)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                )}
-              </div>
-            ))}
+            <Label className="text-sm sm:text-base">Poll Options *</Label>
+            <div className="space-y-2 sm:space-y-3">
+              {formData.options.map((option, index) => (
+                <div key={index} className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-2">
+                  <Input
+                    value={option}
+                    onChange={(e) => updateOption(index, e.target.value)}
+                    placeholder={`Option ${index + 1}`}
+                    required
+                    className="flex-1"
+                  />
+                  {formData.options.length > 2 && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => removeOption(index)}
+                      className="sm:w-auto w-full"
+                    >
+                      <Trash2 className="h-4 w-4 sm:mr-0 mr-2" />
+                      <span className="sm:hidden">Remove Option</span>
+                    </Button>
+                  )}
+                </div>
+              ))}
+            </div>
             
             <Button
               type="button"
@@ -205,7 +210,7 @@ export function CreatePollForm({ onSubmit, isLoading = false }: CreatePollFormPr
             </Button>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             <div className="flex items-center space-x-2">
               <Checkbox
                 id="multipleChoices"
@@ -223,9 +228,9 @@ export function CreatePollForm({ onSubmit, isLoading = false }: CreatePollFormPr
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="expiresAt">Expiration Date (optional)</Label>
-              <div className="flex items-center space-x-2">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
+              <Label htmlFor="expiresAt" className="text-sm sm:text-base">Expiration Date (optional)</Label>
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-2">
+                <Calendar className="h-4 w-4 text-muted-foreground sm:block hidden" />
                 <Input
                   id="expiresAt"
                   type="datetime-local"
@@ -239,11 +244,11 @@ export function CreatePollForm({ onSubmit, isLoading = false }: CreatePollFormPr
             </div>
           </div>
 
-          <div className="flex space-x-4">
-            <Button type="submit" disabled={isLoading} className="flex-1">
+          <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 pt-2">
+            <Button type="submit" disabled={isLoading} className="flex-1 order-2 sm:order-1">
               {isLoading ? 'Creating Poll...' : 'Create Poll'}
             </Button>
-            <Button type="button" variant="outline" className="flex-1">
+            <Button type="button" variant="outline" className="flex-1 order-1 sm:order-2">
               Cancel
             </Button>
           </div>

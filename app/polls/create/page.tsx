@@ -8,26 +8,40 @@ import { ProtectedRoute } from '@/components/auth/protected-route';
 import { CreatePollForm } from '@/components/polls/create-poll-form';
 import { useAuth } from '@/contexts/auth-context';
 import { CreatePollData } from '@/types';
+import { pollService } from '@/lib/supabase-services';
 
 export default function CreatePollPage() {
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
   const router = useRouter();
 
   const handleCreatePoll = async (data: CreatePollData) => {
+    if (!user) {
+      setError('You must be logged in to create a poll');
+      return;
+    }
+
     try {
       setIsLoading(true);
+      setError(null);
       
-      // TODO: Implement poll creation with Supabase
-      console.log('Creating poll:', data);
+      console.log('[CreatePoll] Creating poll with data:', {
+        title: data.title,
+        optionCount: data.options.length,
+        allowMultiple: data.allowMultipleChoices
+      });
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Create the poll using the pollService
+      const newPoll = await pollService.createPoll(data, user.id);
       
-      // Redirect to dashboard after creation
-      router.push('/dashboard');
-    } catch (error) {
-      console.error('Failed to create poll:', error);
+      console.log('[CreatePoll] Poll created successfully:', newPoll.id);
+      
+      // Redirect to polls page after successful creation
+      router.push('/polls');
+    } catch (error: any) {
+      console.error('[CreatePoll] Failed to create poll:', error);
+      setError(error.message || 'Failed to create poll. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -48,6 +62,12 @@ export default function CreatePollPage() {
                 Ask a question and let others vote on the options
               </p>
             </div>
+
+            {error && (
+              <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+                {error}
+              </div>
+            )}
 
             <CreatePollForm onSubmit={handleCreatePoll} isLoading={isLoading} />
           </div>

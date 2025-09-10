@@ -71,8 +71,12 @@ export interface Poll {
   // Joined data (populated by service layer when needed)
   /** Poll options with vote counts */
   options?: PollOption[];
-  /** Creator profile information */
+  /** Poll options returned as poll_options from Supabase */
+  poll_options?: PollOption[];
+  /** Creator profile information (legacy field) */
   created_by_profile?: Profile;
+  /** Creator profile information from Supabase join */
+  profiles?: Profile;
 }
 
 /**

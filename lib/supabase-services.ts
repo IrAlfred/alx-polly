@@ -103,41 +103,95 @@ export const profileService = {
  * and deletion with proper authorization and data validation.
  */
 export const pollService = {
+  /**
+   * Retrieves all active polls with their options and creator information
+   * 
+   * Fetches polls from the database according to the schema defined in supabase_setup.sql.
+   * Joins with the profiles table to get creator details (email, name, avatar).
+   * 
+   * @returns Promise resolving to array of polls with their options and creator info
+   * @throws Error if database query fails
+   */
   async getAllPolls() {
+    // First, let's try a simpler query without the problematic join
     const { data, error } = await supabase
       .from('polls')
       .select(`
         *,
-        poll_options (*),
-        profiles:created_by (*)
+        poll_options (*)
       `)
       .eq('is_active', true)
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.error('Supabase error in getAllPolls:', error);
+      console.error('[PollService] Error fetching polls:', error);
       throw error;
     }
-    
-    // Return empty array if no data, otherwise return the data
-    return (data || []) as (Poll & { poll_options: PollOption[], profiles: Profile })[];
+
+    // Fetch profile information for each poll creator
+    if (data && data.length > 0) {
+      const creatorIds = [...new Set(data.map(poll => poll.created_by))];
+      const { data: profiles, error: profileError } = await supabase
+        .from('profiles')
+        .select('id, email, name, avatar_url')
+        .in('id', creatorIds);
+
+      if (!profileError && profiles) {
+        // Attach profile data to each poll
+        data.forEach(poll => {
+          poll.created_by_profile = profiles.find(profile => profile.id === poll.created_by);
+        });
+      }
+    }
+
+    console.log('[PollService] Successfully fetched polls:', data?.length || 0);
+    return data as Poll[];
   },
 
+  /**
+   * Retrieves a single poll by ID with its options and creator information
+   * 
+   * @param pollId - Unique identifier for the poll
+   * @returns Promise resolving to poll with options and creator info
+   * @throws Error if poll not found or database error occurs
+   */
   async getPollById(pollId: string) {
     const { data, error } = await supabase
       .from('polls')
       .select(`
         *,
-        poll_options (*),
-        profiles:created_by (*)
+        poll_options (*)
       `)
       .eq('id', pollId)
       .single();
 
-    if (error) throw error;
-    return data as Poll & { poll_options: PollOption[], profiles: Profile };
+    if (error) {
+      console.error('[PollService] Error fetching poll by ID:', error);
+      throw error;
+    }
+
+    // Fetch creator profile information
+    if (data && data.created_by) {
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('id, email, name, avatar_url')
+        .eq('id', data.created_by)
+        .single();
+
+      if (!profileError && profile) {
+        data.created_by_profile = profile;
+      }
+    }
+    
+    return data as Poll;
   },
 
+  /**
+   * Retrieves polls created by a specific user
+   * 
+   * @param userId - User ID to filter polls by
+   * @returns Promise resolving to array of user's polls
+   */
   async getUserPolls(userId: string) {
     const { data, error } = await supabase
       .from('polls')
