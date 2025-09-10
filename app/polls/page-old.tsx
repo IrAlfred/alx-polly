@@ -143,7 +143,7 @@ export default function PollsPage() {
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-3">
-                        {(poll.poll_options || poll.options)?.slice(0, 3).map((option, index) => (
+                        {poll.options?.slice(0, 3).map((option, index) => (
                           <div key={option.id} className="flex items-center justify-between p-2 border rounded-lg">
                             <span className="text-sm">{option.text}</span>
                             <span className="text-xs text-gray-500">{option.votes} votes</span>
@@ -152,16 +152,16 @@ export default function PollsPage() {
                           <p className="text-sm text-gray-500">Loading options...</p>
                         )}
                         
-                        {(poll.poll_options || poll.options) && (poll.poll_options || poll.options)!.length > 3 && (
+                        {poll.options && poll.options.length > 3 && (
                           <p className="text-xs text-gray-500 text-center">
-                            +{(poll.poll_options || poll.options)!.length - 3} more options
+                            +{poll.options.length - 3} more options
                           </p>
                         )}
                         
                         <div className="flex items-center justify-between text-xs text-gray-500 pt-3 border-t">
                           <div className="flex items-center gap-1">
                             <User className="w-3 h-3" />
-                            <span>by {poll.created_by_profile?.email || poll.created_by_profile?.name || 'Anonymous'}</span>
+                            <span>by {poll.created_by_profile?.name || 'Anonymous'}</span>
                           </div>
                           <div className="flex items-center gap-1">
                             <Calendar className="w-3 h-3" />
@@ -194,6 +194,28 @@ export default function PollsPage() {
               )}
             </div>
           )}
+        </div>
+      </main>
+
+      <Footer />
+    </div>
+  );
+}
+            <Button variant="outline">
+              <Filter className="h-4 w-4 mr-2" />
+              Filters
+            </Button>
+          </div>
+
+          <PollList 
+            polls={filteredPolls}
+            onVote={user ? vote : undefined}
+            emptyMessage={
+              searchTerm 
+                ? `No polls found matching "${searchTerm}"`
+                : "No polls available yet. Be the first to create one!"
+            }
+          />
         </div>
       </main>
 
