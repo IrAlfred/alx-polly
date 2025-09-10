@@ -1,3 +1,21 @@
+/**
+ * @fileoverview Create Poll Form Component for ALX Polly Application
+ * 
+ * A comprehensive, multi-step poll creation form that allows users to create
+ * sophisticated polls with multiple options, settings, and validation.
+ * 
+ * Features:
+ * - Dynamic option management (add/remove poll options)
+ * - Form validation with user-friendly error messages
+ * - Multiple choice support with checkbox toggle
+ * - Rich text descriptions and metadata
+ * - Responsive design with accessibility features
+ * - Loading states and submission handling
+ * 
+ * @author ALX Polly Team  
+ * @version 1.0.0
+ */
+
 'use client';
 
 import { useState } from 'react';
@@ -10,30 +28,86 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { CreatePollData } from '@/types';
 import { Plus, Trash2, Calendar } from 'lucide-react';
 
+/**
+ * Props interface for the CreatePollForm component
+ */
 interface CreatePollFormProps {
+  /** 
+   * Callback function to handle poll creation submission
+   * Called with validated poll data when form is submitted successfully
+   */
   onSubmit: (data: CreatePollData) => Promise<void>;
+  /** 
+   * Loading state indicator to disable form during poll creation
+   * Prevents multiple submissions and provides user feedback
+   */
   isLoading?: boolean;
 }
 
+/**
+ * Create Poll Form Component
+ * 
+ * A sophisticated form component for creating new polls with comprehensive
+ * validation, dynamic option management, and user-friendly interface.
+ * 
+ * The form includes:
+ * - Poll title and description fields with validation
+ * - Dynamic option list with add/remove functionality
+ * - Settings for multiple choice support
+ * - Form validation with meaningful error messages
+ * - Loading states and submission handling
+ * 
+ * @param props - Component props containing submission handler and loading state
+ * @returns JSX element representing the poll creation form
+ * 
+ * @example
+ * ```tsx
+ * <CreatePollForm
+ *   onSubmit={handlePollCreation}
+ *   isLoading={isCreatingPoll}
+ * />
+ * ```
+ */
 export function CreatePollForm({ onSubmit, isLoading = false }: CreatePollFormProps) {
+  // Form state management for poll creation data
   const [formData, setFormData] = useState<CreatePollData>({
     title: '',
     description: '',
-    options: ['', ''],
+    options: ['', ''], // Start with two empty options
     allowMultipleChoices: false,
   });
 
+  /**
+   * Handles form submission with comprehensive validation
+   * 
+   * Validates that the poll has a title, at least 2 non-empty options,
+   * and meets other business requirements before calling the submission handler.
+   * 
+   * @param e - Form submission event
+   */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Filter out empty options
+    // Validation: Filter out empty options and check minimum requirements
     const validOptions = formData.options.filter(option => option.trim() !== '');
     
+    if (!formData.title.trim()) {
+      alert('Please provide a poll title');
+      return;
+    }
+    
     if (validOptions.length < 2) {
-      alert('Please provide at least 2 options');
+      alert('Please provide at least 2 options for your poll');
       return;
     }
 
+    console.log('[CreatePollForm] Submitting poll creation with:', {
+      title: formData.title,
+      optionCount: validOptions.length,
+      allowMultiple: formData.allowMultipleChoices
+    });
+
+    // Submit the validated poll data
     await onSubmit({
       ...formData,
       options: validOptions,

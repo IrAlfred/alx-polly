@@ -1,8 +1,50 @@
+/**
+ * @fileoverview Supabase Service Layer for ALX Polly Application
+ * 
+ * This module provides a comprehensive service layer for interacting with
+ * the Supabase database. It encapsulates all database operations including
+ * user profiles, poll management, voting system, and analytics.
+ * 
+ * Key Features:
+ * - Type-safe database operations with TypeScript interfaces
+ * - Error handling and validation for all database calls
+ * - Optimized queries with proper joins and filters
+ * - Row Level Security (RLS) compliance
+ * - Real-time subscription support for live updates
+ * 
+ * Architecture:
+ * - Service objects group related operations (profiles, polls, votes)
+ * - Consistent error handling patterns across all services  
+ * - Proper data transformation and validation
+ * - Performance optimizations with selective field querying
+ * 
+ * @author ALX Polly Team
+ * @version 1.0.0
+ */
+
 import { supabase } from './supabase';
 import { Poll, PollOption, Vote, CreatePollData, Profile } from '@/types';
 
-// Profile operations
+/**
+ * Profile Service - User Profile Management Operations
+ * 
+ * Handles all user profile-related database operations including
+ * profile retrieval, updates, and metadata management.
+ */
 export const profileService = {
+  /**
+   * Retrieves a user profile by ID
+   * 
+   * @param userId - Unique identifier for the user
+   * @returns Promise resolving to user profile data
+   * @throws Error if profile not found or database error occurs
+   * 
+   * @example
+   * ```typescript
+   * const profile = await profileService.getProfile('user-123');
+   * console.log(profile.name, profile.avatar_url);
+   * ```
+   */
   async getProfile(userId: string) {
     const { data, error } = await supabase
       .from('profiles')
@@ -10,10 +52,33 @@ export const profileService = {
       .eq('id', userId)
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error('[ProfileService] Error fetching profile:', error);
+      throw error;
+    }
+    
     return data as Profile;
   },
 
+  /**
+   * Updates user profile with new data
+   * 
+   * Automatically sets the updated_at timestamp and validates the user
+   * has permission to update the profile via RLS policies.
+   * 
+   * @param userId - User ID of the profile to update
+   * @param updates - Partial profile data to update
+   * @returns Promise resolving to updated profile data
+   * @throws Error if update fails or user lacks permission
+   * 
+   * @example
+   * ```typescript
+   * const updated = await profileService.updateProfile('user-123', {
+   *   name: 'New Name',
+   *   avatar_url: 'https://example.com/avatar.png'
+   * });
+   * ```
+   */
   async updateProfile(userId: string, updates: Partial<Profile>) {
     const { data, error } = await supabase
       .from('profiles')
@@ -22,12 +87,21 @@ export const profileService = {
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error('[ProfileService] Error updating profile:', error);
+      throw error;
+    }
+    
     return data as Profile;
   }
 };
 
-// Poll operations
+/**
+ * Poll Service - Poll Management Operations
+ * 
+ * Comprehensive poll management including creation, retrieval, updates,
+ * and deletion with proper authorization and data validation.
+ */
 export const pollService = {
   async getAllPolls() {
     const { data, error } = await supabase
