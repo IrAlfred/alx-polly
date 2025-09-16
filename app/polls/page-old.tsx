@@ -79,29 +79,25 @@ export default function PollsPage() {
     <div className="min-h-screen flex flex-col">
       <Header />
       
-      <main className="flex-1 container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        <div className="space-y-6 sm:space-y-8">
-          {/* Header Section - Responsive */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div className="space-y-1">
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">All Polls</h1>
-              <p className="text-sm sm:text-base text-muted-foreground">
+      <main className="flex-1 container mx-auto px-4 py-8">
+        <div className="space-y-6">
+          {/* Header Section */}
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold">All Polls</h1>
+              <p className="text-muted-foreground">
                 Discover and participate in community polls
               </p>
             </div>
-            <Button 
-              onClick={() => router.push('/polls/create')}
-              className="w-full sm:w-auto"
-            >
+            <Button onClick={() => router.push('/polls/create')}>
               <Plus className="w-4 h-4 mr-2" />
-              <span className="sm:hidden">Create Poll</span>
-              <span className="hidden sm:inline">Create New Poll</span>
+              Create New Poll
             </Button>
           </div>
 
-          {/* Search Section - Responsive */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
-            <div className="relative flex-1 max-w-full sm:max-w-md">
+          {/* Search Section */}
+          <div className="flex items-center space-x-4">
+            <div className="relative flex-1 max-w-md">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Search polls..."
@@ -119,74 +115,57 @@ export default function PollsPage() {
             </div>
           )}
 
-          {/* Loading State - Responsive */}
+          {/* Loading State */}
           {loading && (
-            <div className="flex items-center justify-center py-8 sm:py-12">
+            <div className="flex items-center justify-center py-12">
               <div className="text-center">
-                <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-primary mx-auto mb-3 sm:mb-4"></div>
-                <p className="text-sm sm:text-base text-gray-600">Loading polls...</p>
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+                <p className="text-gray-600">Loading polls...</p>
               </div>
             </div>
           )}
 
-          {/* Polls Grid - Responsive */}
+          {/* Polls Grid */}
           {!loading && !error && (
-            <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {filteredPolls.length > 0 ? (
                 filteredPolls.map((poll) => (
-                  <Card key={poll.id} 
-                        className="hover:shadow-lg hover:shadow-blue-500/10 transition-all duration-200 cursor-pointer transform hover:-translate-y-1" 
+                  <Card key={poll.id} className="hover:shadow-lg transition-shadow cursor-pointer" 
                         onClick={() => router.push(`/polls/${poll.id}`)}>
-                    <CardHeader className="pb-3">
-                      <CardTitle className="flex items-start gap-2 text-base sm:text-lg leading-tight">
-                        <Vote className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500 flex-shrink-0 mt-0.5" />
-                        <span className="line-clamp-2">{poll.title}</span>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Vote className="w-5 h-5 text-blue-500" />
+                        {poll.title}
                       </CardTitle>
                       {poll.description && (
-                        <CardDescription className="text-xs sm:text-sm line-clamp-2">
-                          {poll.description}
-                        </CardDescription>
+                        <CardDescription>{poll.description}</CardDescription>
                       )}
                     </CardHeader>
-                    <CardContent className="pt-0">
-                      <div className="space-y-2 sm:space-y-3">
-                        {(poll.poll_options || poll.options)?.slice(0, 3).map((option, index) => (
-                          <div key={option.id} className="flex items-center justify-between p-2 sm:p-3 border rounded-lg bg-gray-50/50 hover:bg-gray-100/50 transition-colors">
-                            <span className="text-xs sm:text-sm font-medium line-clamp-1 flex-1 mr-2">{option.text}</span>
-                            <span className="text-xs text-gray-500 font-medium bg-white px-2 py-1 rounded-full border">
-                              {option.votes || 0}
-                            </span>
+                    <CardContent>
+                      <div className="space-y-3">
+                        {poll.options?.slice(0, 3).map((option, index) => (
+                          <div key={option.id} className="flex items-center justify-between p-2 border rounded-lg">
+                            <span className="text-sm">{option.text}</span>
+                            <span className="text-xs text-gray-500">{option.votes} votes</span>
                           </div>
                         )) || (
-                          <div className="space-y-2">
-                            {[1, 2, 3].map((i) => (
-                              <div key={i} className="h-8 bg-gray-100 rounded-lg animate-pulse"></div>
-                            ))}
-                          </div>
+                          <p className="text-sm text-gray-500">Loading options...</p>
                         )}
                         
-                        {(poll.poll_options || poll.options) && (poll.poll_options || poll.options)!.length > 3 && (
-                          <p className="text-xs text-gray-500 text-center font-medium bg-gray-50 py-1 px-2 rounded">
-                            +{(poll.poll_options || poll.options)!.length - 3} more options
+                        {poll.options && poll.options.length > 3 && (
+                          <p className="text-xs text-gray-500 text-center">
+                            +{poll.options.length - 3} more options
                           </p>
                         )}
                         
-                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs text-gray-500 pt-2 sm:pt-3 border-t">
+                        <div className="flex items-center justify-between text-xs text-gray-500 pt-3 border-t">
                           <div className="flex items-center gap-1">
-                            <User className="w-3 h-3 flex-shrink-0" />
-                            <span className="truncate">
-                              by {poll.created_by_profile?.email || poll.created_by_profile?.name || 'Anonymous'}
-                            </span>
+                            <User className="w-3 h-3" />
+                            <span>by {poll.created_by_profile?.name || 'Anonymous'}</span>
                           </div>
                           <div className="flex items-center gap-1">
-                            <Calendar className="w-3 h-3 flex-shrink-0" />
-                            <span className="whitespace-nowrap">
-                              {new Date(poll.created_at).toLocaleDateString(undefined, { 
-                                month: 'short', 
-                                day: 'numeric',
-                                year: window.innerWidth > 640 ? 'numeric' : '2-digit'
-                              })}
-                            </span>
+                            <Calendar className="w-3 h-3" />
+                            <span>{new Date(poll.created_at).toLocaleDateString()}</span>
                           </div>
                         </div>
                       </div>
@@ -215,6 +194,28 @@ export default function PollsPage() {
               )}
             </div>
           )}
+        </div>
+      </main>
+
+      <Footer />
+    </div>
+  );
+}
+            <Button variant="outline">
+              <Filter className="h-4 w-4 mr-2" />
+              Filters
+            </Button>
+          </div>
+
+          <PollList 
+            polls={filteredPolls}
+            onVote={user ? vote : undefined}
+            emptyMessage={
+              searchTerm 
+                ? `No polls found matching "${searchTerm}"`
+                : "No polls available yet. Be the first to create one!"
+            }
+          />
         </div>
       </main>
 
